@@ -9,13 +9,11 @@
 import UIKit
 
 class SearchDataVC: UITableViewController, UISearchResultsUpdating {
-    @IBOutlet weak var searchBar: UISearchBar!
     
     struct Candy {
         let category: String
         let name: String
     }
-    var label: UILabel = UILabel()
     var candies = [
         Candy(category:"Chocolate", name:"Chocolate Bar"),
         Candy(category:"Chocolate", name:"Chocolate Chip"),
