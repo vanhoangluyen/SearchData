@@ -8,7 +8,7 @@
 
 import UIKit
 
-class SearchDataVC: UITableViewController, UISearchResultsUpdating {
+class SearchDataVC: UITableViewController {
     
     struct Candy {
         let category: String
@@ -42,20 +42,26 @@ class SearchDataVC: UITableViewController, UISearchResultsUpdating {
         searchController.dimsBackgroundDuringPresentation = false
         definesPresentationContext = true
         tableView.tableHeaderView = searchController.searchBar
+        
+        // Setup the Scope Bar
+        searchController.searchBar.scopeButtonTitles = ["All", "Chocolate", "Hard", "Other"]
+        searchController.searchBar.delegate = self
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
         
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
-    func updateSearchResults(for searchController: UISearchController) {
-        if searchController.searchBar.text! == "" {
-            filterCandy = candies
-        } else {
-            // Filter the results
-            filterCandy = candies.filter { $0.name.lowercased().contains(searchController.searchBar.text!.lowercased()) }
-        }
-        
+    func filterContentForSearchText(_ searchText: String, scope: String = "All") {
+        filterCandy = candies.filter({(candy: Candy) -> Bool in
+            let doesCategoryMatch = (scope == "All") || (candy.category == scope)
+            if searchController.searchBar.text! == "" {
+                return doesCategoryMatch
+            } else {
+                // Filter the results
+                return doesCategoryMatch && candy.name.lowercased().contains(searchText.lowercased())
+            }
+        })
         tableView.reloadData()
     }
     
@@ -81,9 +87,23 @@ class SearchDataVC: UITableViewController, UISearchResultsUpdating {
         cell.detailTextLabel?.text = filterCandy[indexPath.row].category
         return cell
     }
-//    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        print("Row \(indexPath.row) selected")
-//    }
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("Row \(indexPath.row) selected")
+    }
+}
+extension SearchDataVC: UISearchBarDelegate {
+    // MARK: - UISearchBar Delegate
+    func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
+        filterContentForSearchText(searchBar.text!, scope: searchBar.scopeButtonTitles![selectedScope])
+    }
 }
 
+extension SearchDataVC: UISearchResultsUpdating {
+    // MARK: - UISearchResultsUpdating Delegate
+    func updateSearchResults(for searchController: UISearchController) {
+        let searchBar = searchController.searchBar
+        let scope = searchBar.scopeButtonTitles![searchBar.selectedScopeButtonIndex]
+        filterContentForSearchText(searchController.searchBar.text!, scope: scope)
+    }
+}
 
