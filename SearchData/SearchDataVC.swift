@@ -9,10 +9,25 @@
 import UIKit
 
 class SearchDataVC: UITableViewController {
+    @IBOutlet weak var headerView: UIView!
+    @IBOutlet var noMatched: UIView!
     
     struct Candy {
         let category: String
         let name: String
+    }
+    var hasNoMatched: Bool = false {
+        didSet {
+            guard hasNoMatched != oldValue else {return}
+            if self.hasNoMatched {
+                self.tableView.tableHeaderView = noMatched
+                self.tableView.isScrollEnabled = false
+            } else {
+                self.tableView.tableHeaderView = headerView
+                self.tableView.isScrollEnabled = true
+
+            }
+        }
     }
     var candies = [
         Candy(category:"Chocolate", name:"Chocolate Bar"),
@@ -29,7 +44,9 @@ class SearchDataVC: UITableViewController {
         Candy(category:"Chocolate", name:"Chocolate Egg"),
         Candy(category:"Other", name:"Jelly Beans"),
         Candy(category:"Other", name:"Liquorice"),
-        Candy(category:"Hard", name:"Toffee Apple")]
+        Candy(category:"Hard", name:"Toffee Apple"),
+        Candy(category:"Hard", name:"!@#$%^&*"),
+        Candy(category:"asashgdf", name:"aaaa")]
     
     var filterCandy = [Candy]()
     let searchController = UISearchController(searchResultsController: nil)
@@ -41,7 +58,8 @@ class SearchDataVC: UITableViewController {
         searchController.searchResultsUpdater = self
         searchController.dimsBackgroundDuringPresentation = false
         definesPresentationContext = true
-        tableView.tableHeaderView = searchController.searchBar
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
         
         // Setup the Scope Bar
         searchController.searchBar.scopeButtonTitles = ["All", "Chocolate", "Hard", "Other"]
@@ -52,19 +70,25 @@ class SearchDataVC: UITableViewController {
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        hasNoMatched = filterCandy.count == 0 ? true : false
+    }
     func filterContentForSearchText(_ searchText: String, scope: String = "All") {
         filterCandy = candies.filter({(candy: Candy) -> Bool in
             let doesCategoryMatch = (scope == "All") || (candy.category == scope)
             if searchController.searchBar.text! == "" {
+                hasNoMatched = filterCandy.count == 0 ? true : false
                 return doesCategoryMatch
+                
             } else {
                 // Filter the results
+                hasNoMatched = filterCandy.count == 0 ? true : false
                 return doesCategoryMatch && candy.name.lowercased().contains(searchText.lowercased())
             }
         })
         tableView.reloadData()
     }
-    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
