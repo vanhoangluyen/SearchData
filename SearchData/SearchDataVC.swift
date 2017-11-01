@@ -9,26 +9,11 @@
 import UIKit
 
 class SearchDataVC: UITableViewController {
-    @IBOutlet weak var headerView: UIView!
-    @IBOutlet var noMatched: UIView!
-    
     struct Candy {
         let category: String
         let name: String
     }
-    var hasNoMatched: Bool = false {
-        didSet {
-            guard hasNoMatched != oldValue else {return}
-            if self.hasNoMatched {
-                self.tableView.tableHeaderView = noMatched
-                self.tableView.isScrollEnabled = false
-            } else {
-                self.tableView.tableHeaderView = headerView
-                self.tableView.isScrollEnabled = true
 
-            }
-        }
-    }
     var candies = [
         Candy(category:"Chocolate", name:"Chocolate Bar"),
         Candy(category:"Chocolate", name:"Chocolate Chip"),
@@ -70,20 +55,14 @@ class SearchDataVC: UITableViewController {
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        hasNoMatched = filterCandy.count == 0 ? true : false
-    }
     func filterContentForSearchText(_ searchText: String, scope: String = "All") {
         filterCandy = candies.filter({(candy: Candy) -> Bool in
             let doesCategoryMatch = (scope == "All") || (candy.category == scope)
             if searchController.searchBar.text! == "" {
-                hasNoMatched = filterCandy.count == 0 ? true : false
                 return doesCategoryMatch
                 
             } else {
                 // Filter the results
-                hasNoMatched = filterCandy.count == 0 ? true : false
                 return doesCategoryMatch && candy.name.lowercased().contains(searchText.lowercased())
             }
         })
