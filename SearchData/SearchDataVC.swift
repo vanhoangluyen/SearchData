@@ -7,12 +7,17 @@
 //
 
 import UIKit
-
-class SearchDataVC: UITableViewController {
-    struct Candy {
-        let category: String
-        let name: String
+struct Candy : Equatable{
+    let category: String
+    let name: String
+    public static func == (lhs: Candy, rhs: Candy) -> Bool {
+        return lhs.name == rhs.name && lhs.category == rhs.category
     }
+    
+    
+}
+
+class SearchDataVC: UITableViewController  {
 
     var candies = [
         Candy(category:"Chocolate", name:"Chocolate Bar"),
@@ -44,7 +49,7 @@ class SearchDataVC: UITableViewController {
         searchController.dimsBackgroundDuringPresentation = false
         definesPresentationContext = true
         navigationItem.searchController = searchController
-        navigationItem.hidesSearchBarWhenScrolling = false
+        //navigationItem.hidesSearchBarWhenScrolling = false
         
         // Setup the Scope Bar
         searchController.searchBar.scopeButtonTitles = ["All", "Chocolate", "Hard", "Other"]
